@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 
-import { saveToken } from '../../services/auth';
+import { saveToken } from '../../auth/auth';
 import { Container, Form } from "../SignUp/styles";
 
 class SignIn extends Component {
