@@ -2338,7 +2338,12 @@
   dependencies:
     "color-convert" "^2.0.1"
 
-"antd@^4.8.6":
+"antd-mask-input@^0.1.14":
+  "integrity" "sha512-m/sFvypNakwiNmthPHkVcpjd4G6hUWF05JD/PYgfjb3ebZK4GlEPnkNH12CKMLG0lfS0Q2IqLixuPq5w04N30w=="
+  "resolved" "https://registry.npmjs.org/antd-mask-input/-/antd-mask-input-0.1.14.tgz"
+  "version" "0.1.14"
+
+"antd@^4.8.6", "antd@>=3.0.0":
   "integrity" "sha512-UhpODlcsUhBKgXulr8OmG9mEdFSSfk3hTq1lfO1HETxaOOEFnd3nSLiGCpELTGAUH9mlQPvoL+ccSXs/Q/9Zbw=="
   "resolved" "https://registry.npmjs.org/antd/-/antd-4.8.6.tgz"
   "version" "4.8.6"

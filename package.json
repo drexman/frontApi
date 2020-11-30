@@ -12,6 +12,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "antd": "^4.8.6",
+    "antd-mask-input": "^0.1.14",
     "axios": "^0.21.0",
     "font-awesome": "^4.7.0",
     "prop-types": "^15.7.2",

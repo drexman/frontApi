@@ -1,16 +1,9 @@
 import  React, {Component} from 'react';
-import { Table } from 'antd';
-import { Link, withRouter } from "react-router-dom";
+import { Button, Table } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { withRouter } from "react-router-dom";
 import ContatoService from "../../services/contatoService";
-
-const dataSource = [
-    {
-        id: '1',
-        nome: 'Samuel Toshikazu Oizume',
-        email: 'Samuel.oizume@hotmail.com.br',
-        telefone: '41999183266'
-    }
-]
+import ContatoForm from '../Contact/form';
 
 const columns = [
     {
@@ -27,14 +20,34 @@ const columns = [
         title: 'Telefone',
         dataIndex: 'telefone',
         key: 'telefone'
+    },
+    {
+        title: 'Operações',
+        key: 'operation',
+        fixed: 'center',
+        width: 150,
+        rebder: () => <a></a>
     }
 ];
 
+
 class Contact extends Component {
 
-    constructor()
+    constructor(props)
     {
-        super();
+        super(props);
+        this.state = {
+            id: null,
+            modal: false,
+            currentPage: 0,
+            totalItems: 0,
+            totalPages: 0,
+            dataSource : null,
+        }
+    }
+
+    componentDidMount()
+    {
         this.load();
     }
 
@@ -44,8 +57,14 @@ class Contact extends Component {
             page: 0,
             size: 10
         };
-        ContatoService.getAll(params).then(response => {
-            console.log(response);
+        
+        ContatoService.getData(params).then(response => {
+            this.setState({
+                dataSource : response.data.datas,
+                currentPage: response.data.currentPage,
+                totalItems: response.data.totalItems,
+                totalPages: response.data.totalPages
+            });
         }).catch(err => {
             console.log(err); 
         })
@@ -55,13 +74,47 @@ class Contact extends Component {
         console.log(pagination);
     }
 
+    salvar(valores)
+    {
+        console.log(valores);
+        ContatoService.save(valores).then(response => {
+            this.load();
+        }).catch(err => {
+            console.log(err); 
+        })
+        this.setState({modal : false});
+    }   
+
+    cancelar(e)
+    {
+        this.setState({modal : false});
+    }
+
+    abrirNovo()
+    {
+        this.setState({
+            modal : true,
+            id: null
+        });
+
+    }
+
     render()
     {
         return(
             <div>
-                <Table dataSource={dataSource} 
-                onChange={this.handleTableChange}
+                <ContatoForm 
+                id={this.state.id}
+                title=""
+                salvar={this.salvar.bind(this)} 
+                cancelar={this.cancelar.bind(this)} 
+                visible={this.state.modal}/>
+                <Table 
                 columns={columns} 
+                dataSource={this.state.dataSource} 
+                title={() => <div><Button type="primary" onClick={this.abrirNovo.bind(this)}><PlusOutlined /></Button></div>}
+                onChange={this.handleTableChange}
+                
                   />
             </div>
         );

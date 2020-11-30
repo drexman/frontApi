@@ -10,7 +10,7 @@ const Home = React.lazy(() => import('./pages/Home'));
 
 const PrivateRoute = ({component : Component, ...props}) => {
     const ok = isAuthenticated();
-    return ok ? (<Route path={props.path}><Component  page={props.page}/></Route>) : 
+    return ok ? (<Route path={props.path}><Component page={props.page}/></Route>) : 
     (<Redirect to={{ pathname : "/", state: { from: props.location }}} />);
 }
 

@@ -1,54 +1,22 @@
+import Axios from "axios";
 const apiUrl = `http://127.0.0.1:4000/contato`;
 
 class ContatoService {
- 
 
-    static save()
-    {
-        let requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: {}
-        }
-        let api = apiUrl + `/save`;
-        
-        return new Promise((resolve, reject) => {
-            fetch(api, requestOptions)
-            .then(response => {
-                const data = response.json();
-                resolve(data);
-            })
-            .catch(error => {
-                reject(error);
-            });
-        });
+    static save(params) {
+        let api = apiUrl + `/save`
+        return Axios.post(api, params);
     }
 
-    static update()
+    static update(params)
     {
 
     }
-
-    static delete()
-    {
-
-    }
-
-    static getAll(params)
-    {
-        let requestOption ={
-            headers: {'Content-Type': 'application/json'}
-        }
+    
+    static getData(params) {
 
         let api = apiUrl + `/list?page=${params.page}&size=${params.size}`;
-        return new Promise((resolve, reject) => {
-            fetch(api, requestOption).then(response => {
-                const data = response.json();
-                resolve(data);
-            }).catch(error => {
-                reject(error);
-            })
-        });
+        return Axios.get(api);
     }
 }
 
