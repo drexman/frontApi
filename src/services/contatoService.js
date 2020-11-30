@@ -1,5 +1,6 @@
 import Axios from "axios";
-const apiUrl = `http://127.0.0.1:4000/contato`;
+
+const apiUrl =  process.env.apiUrl + `/contato`;
 
 class ContatoService {
 
@@ -8,10 +9,23 @@ class ContatoService {
         return Axios.post(api, params);
     }
 
-    static update(params)
+    static update(id, params)
     {
-
+        let api = apiUrl + `/update/${id}`
+        return Axios.put(api, params); 
     }
+
+    static findById(id)
+    {
+        let api = apiUrl + `/findOne/${id}`
+        return Axios.get(api); 
+    } 
+
+    static delete(id)
+    {
+        let api = apiUrl + `/delete/${id}`;
+        return Axios.delete(api);
+    } 
     
     static getData(params) {
 

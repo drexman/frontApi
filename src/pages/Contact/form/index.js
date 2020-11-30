@@ -1,10 +1,22 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Button, Input } from 'antd';
 import MaskedInput from 'antd-mask-input';
+import ContatoService from "../../../services/contatoService";
 
 const ContatoForm = (props) => {
 
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        let id = props.id;
+        if (!id) {
+            form.setFieldsValue({
+
+            });
+            ContatoService
+        }
+    }, [props]);
+
 
     return (
         <Modal
@@ -26,8 +38,8 @@ const ContatoForm = (props) => {
                     <MaskedInput mask="(11) 11111-1111" name="telefone" />
                 </Form.Item>
                 <Form.Item>
-                <Button type="primary" htmlType="submit">
-                Salvar
+                    <Button type="primary" htmlType="submit">
+                        Salvar
                 </Button>
                 </Form.Item>
             </Form>

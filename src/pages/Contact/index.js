@@ -1,41 +1,48 @@
 import  React, {Component} from 'react';
-import { Button, Table } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Modal,Space, Button, Table } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { withRouter } from "react-router-dom";
 import ContatoService from "../../services/contatoService";
 import ContatoForm from '../Contact/form';
-
-const columns = [
-    {
-        title: 'Nome',
-        dataIndex: 'nome',
-        key: 'nome'
-    },
-    {
-        title: 'Email',
-        dataIndex: 'email',
-        key: 'email'
-    },
-    {
-        title: 'Telefone',
-        dataIndex: 'telefone',
-        key: 'telefone'
-    },
-    {
-        title: 'Operações',
-        key: 'operation',
-        fixed: 'center',
-        width: 150,
-        rebder: () => <a></a>
-    }
-];
-
 
 class Contact extends Component {
 
     constructor(props)
     {
         super(props);
+        this.columns = [
+            {
+                title: 'Nome',
+                dataIndex: 'nome',
+                key: 'nome'
+            },
+            {
+                title: 'Email',
+                dataIndex: 'email',
+                key: 'email'
+            },
+            {
+                title: 'Telefone',
+                dataIndex: 'telefone',
+                key: 'telefone'
+            },
+            {
+                title: 'Operações',
+                key: 'operation',
+                fixed: 'center',
+                width: 150,
+                render: (e) => 
+                <Space>
+                <Button onClick={this.editar.bind(this,e)}>
+                    <EditOutlined />
+                </Button>
+                <Button onClick={this.delete.bind(this,e)}>
+                    <DeleteOutlined />
+                </Button>
+                </Space>
+                
+            }
+        ];
         this.state = {
             id: null,
             modal: false,
@@ -83,7 +90,25 @@ class Contact extends Component {
             console.log(err); 
         })
         this.setState({modal : false});
-    }   
+    } 
+    
+    delete(c)
+    {
+        Modal.confirm({
+            title: 'Confirmação',
+            icon: <ExclamationCircleOutlined/>,
+            content: 'Deseja remover?',
+            okText: 'Sim',
+            cancelText: 'Não',
+            onOk() {
+                ContatoService.delete(c.id).then(response => {
+                    this.load();
+                }).catch(err => {
+                    console.log(err);
+                })
+            }
+        })
+    }
 
     cancelar(e)
     {
@@ -93,10 +118,20 @@ class Contact extends Component {
     abrirNovo()
     {
         this.setState({
+            title : "Novo Cadastro",
             modal : true,
             id: null
         });
 
+    }
+
+    editar(c)
+    {
+        this.setState({
+            title : "Editar Contato",
+            modal : true,
+            id: c.id
+        });
     }
 
     render()
@@ -105,12 +140,12 @@ class Contact extends Component {
             <div>
                 <ContatoForm 
                 id={this.state.id}
-                title=""
+                title={this.state.title}
                 salvar={this.salvar.bind(this)} 
                 cancelar={this.cancelar.bind(this)} 
                 visible={this.state.modal}/>
                 <Table 
-                columns={columns} 
+                columns={this.columns} 
                 dataSource={this.state.dataSource} 
                 title={() => <div><Button type="primary" onClick={this.abrirNovo.bind(this)}><PlusOutlined /></Button></div>}
                 onChange={this.handleTableChange}
