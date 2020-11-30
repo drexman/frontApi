@@ -1,5 +1,5 @@
-import  React, {Component} from 'react';
-import { Modal,Space, Button, Table } from 'antd';
+import React, { Component } from 'react';
+import { Modal, Space, Button, Table, Pagination } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { withRouter } from "react-router-dom";
 import ContatoService from "../../services/contatoService";
@@ -7,9 +7,9 @@ import ContatoForm from '../Contact/form';
 
 class Contact extends Component {
 
-    constructor(props)
-    {
+    constructor(props) {
         super(props);
+        this.self = this;
         this.columns = [
             {
                 title: 'Nome',
@@ -31,126 +31,157 @@ class Contact extends Component {
                 key: 'operation',
                 fixed: 'center',
                 width: 150,
-                render: (e) => 
-                <Space>
-                <Button onClick={this.editar.bind(this,e)}>
-                    <EditOutlined />
-                </Button>
-                <Button onClick={this.delete.bind(this,e)}>
-                    <DeleteOutlined />
-                </Button>
-                </Space>
-                
+                render: (e) =>
+                    <Space>
+                        <Button onClick={this.editar.bind(this, e)}>
+                            <EditOutlined />
+                        </Button>
+                        <Button onClick={this.delete.bind(this, e)}>
+                            <DeleteOutlined />
+                        </Button>
+                    </Space>
+
             }
         ];
         this.state = {
             id: null,
             modal: false,
-            currentPage: 0,
-            totalItems: 0,
-            totalPages: 0,
-            dataSource : null,
+            pagination: {
+                current: 0,
+                pageSize: 10,
+                total: 0,
+            },
+            dataSource: null,
         }
     }
 
-    componentDidMount()
-    {
-        this.load();
+    componentDidMount() {
+        this.load({ page: 0, size: 10 });
     }
 
-    load()
-    {
-        let params = {
-            page: 0,
-            size: 10
-        };
-        
+    load = (params) => {
+        this.setState({ loading: true });
         ContatoService.getData(params).then(response => {
+            let data = response.data;
             this.setState({
-                dataSource : response.data.datas,
-                currentPage: response.data.currentPage,
-                totalItems: response.data.totalItems,
-                totalPages: response.data.totalPages
+                dataSource: data.datas,
+                loading: false,
+                pagination: {
+                    current: data.currentPage,
+                    pageSize: parseInt(data.size),
+                    total: data.totalItems,
+                }
+
             });
         }).catch(err => {
-            console.log(err); 
+            let data = err.response.data;
+            this.setState({ loading: false });
+            console.log(data.mensagem);
         })
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log(pagination);
+ 
     }
 
-    salvar(valores)
-    {
-        console.log(valores);
-        ContatoService.save(valores).then(response => {
-            this.load();
-        }).catch(err => {
-            console.log(err); 
-        })
-        this.setState({modal : false});
-    } 
-    
-    delete(c)
-    {
+    handlePageChange(current, pageSize) {
+       console.log(pageSize);
+        let params = {
+            page: current == 0 ? current : current - 1,
+            size: pageSize
+        }
+        this.load(params);
+    }   
+
+    salvar(valores) {
+        if (!valores.id) {
+
+            //Cadastrar novo
+            ContatoService.save(valores).then(response => {
+                this.load({ page: 0, size: 10 });
+            }).catch(err => {
+                let data = err.response.data;
+                console.log(data.mensagem);
+            })
+        } else {
+            ContatoService.update(valores.id, valores).then(response => {
+                this.load({ page: 0, size: 10 });
+            }).catch(err => {
+                let data = err.response.data;
+                console.log(data.mensagem);
+            })
+        }
+        this.setState({ modal: false });
+    }
+
+    delete(c) {
+        const callback = () => {
+            this.load({ page: 0, size: 10 });
+        }
         Modal.confirm({
             title: 'Confirmação',
-            icon: <ExclamationCircleOutlined/>,
+            icon: <ExclamationCircleOutlined />,
             content: 'Deseja remover?',
             okText: 'Sim',
             cancelText: 'Não',
             onOk() {
                 ContatoService.delete(c.id).then(response => {
-                    this.load();
+                    callback()
                 }).catch(err => {
-                    console.log(err);
+                    let data = err.response.data;
+                    console.log(data.mensagem);
                 })
             }
         })
     }
 
-    cancelar(e)
-    {
-        this.setState({modal : false});
+    cancelar(e) {
+        this.setState({ modal: false });
     }
 
-    abrirNovo()
-    {
+    abrirNovo() {
         this.setState({
-            title : "Novo Cadastro",
-            modal : true,
+            title: "Novo Cadastro",
+            modal: true,
             id: null
         });
 
     }
 
-    editar(c)
-    {
+    editar(c) {
         this.setState({
-            title : "Editar Contato",
-            modal : true,
+            title: "Editar Contato",
+            modal: true,
             id: c.id
         });
     }
 
-    render()
-    {
-        return(
+    render() {
+        return (
             <div>
-                <ContatoForm 
-                id={this.state.id}
-                title={this.state.title}
-                salvar={this.salvar.bind(this)} 
-                cancelar={this.cancelar.bind(this)} 
-                visible={this.state.modal}/>
-                <Table 
-                columns={this.columns} 
-                dataSource={this.state.dataSource} 
-                title={() => <div><Button type="primary" onClick={this.abrirNovo.bind(this)}><PlusOutlined /></Button></div>}
-                onChange={this.handleTableChange}
-                
-                  />
+                <ContatoForm
+                    id={this.state.id}
+                    title={this.state.title}
+                    salvar={this.salvar.bind(this)}
+                    cancelar={this.cancelar.bind(this)}
+                    visible={this.state.modal} />
+                <Table
+                    columns={this.columns}
+                    dataSource={this.state.dataSource}
+                    pagination={false}
+                    loading={this.state.currentloading}
+                    title={() => <div><Button type="primary" onClick={this.abrirNovo.bind(this)}><PlusOutlined /></Button></div>}
+                />
+
+                <Pagination style={{ 'float' : 'right', 'margin-top': '10px' }}
+                    showSizeChanger
+                    defaultCurrent={1}
+                    page={this.state.pagination.currentPage}
+                    pageSize={this.state.pagination.pageSize}
+                    total={this.state.pagination.total}
+                    onChange={this.handlePageChange.bind(this)}
+                />
+
             </div>
         );
     }

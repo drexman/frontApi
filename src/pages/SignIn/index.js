@@ -1,61 +1,79 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { Link, withRouter } from "react-router-dom";
-
+import { Alert, Form, Input, Button } from 'antd';
 import { saveToken } from '../../auth/auth';
-import { Container, Form } from "../SignUp/styles";
+import UsuarioService from "../../services/usuarioService";
 
-class SignIn extends Component {
+require('./style.css');
 
-    state = {
-        email: "",
-        password: "",
-        error: ""
-    };
 
-    handleSignIn = async e => {
-        e.preventDefault();
+const SignIn = () => {
+    const [form] = Form.useForm();
+    const [msg, setMsg] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-        const { email, password } = this.state;
-        if(!email || !password )
-        {
-            this.setState({error: "Preencha e-mail e senha pra continuar!"});
-        } else {
-            try {
-                let token = "ABC1564"; 
-                saveToken(token);
-                this.props.history.push("/app");
-            } catch (error) {
-                this.setState({
-                    error: "Houve um problema com o login, verifique suas credenciais. T.T"
-                });
-            }
-        }   
-    };
 
-    render()
-    {
-        return(
-            <Container>
-                <Form onSubmit={this.handleSignIn}>
-                {this.state.error && <p>{this.state.error}</p>}
-                <input
-                    type="email"
-                    placeholder="Endereço de e-mail"
-                    onChange={e => this.setState({ email : e.target.value })}
-                />
-
-                <input 
-                    type="password"
-                    placeholder="Senha"
-                    onChange={e => this.setState({ password: e.target.value })}
-                    />
-                <button type="submit">Entrar</button>
-                <hr />
-                <Link to="/signup">Criar conta gratis</Link>    
-                </Form>
-            </Container>
-        );
+    const entrarNovo = () => {
+        window.location.href = "/signUp";
     }
+
+    const autenticar = (values) => {
+        UsuarioService.auth(values).then(response => {
+            
+            saveToken(response.data.token);
+            setLoading(false);
+            window.location.href = "/App";
+        }).catch(err => {
+        
+            let data = err.response.data;
+
+            setMsg({ type: 'error', txt: data.mensagem });
+            setLoading(false);
+        });
+
+    }
+
+    const onFail = () => {
+        setLoading(false);
+    }
+
+    return (
+        <div className="loginform">
+            {msg && (
+                <Alert
+                    style={{ width: 400, marginBottom: 5 }}
+                    message={msg.txt}
+                    type={msg.type}
+                    showIcon
+                    closable
+                />
+            )}
+            <Form style={{
+                background: '#fff',
+                width: 400,
+                'minHeight': '350px',
+                padding: '20px'
+            }}
+                form={form}
+                layout="vertical"
+                onFinish={autenticar}
+                onFinishFailed={onFail}
+                >
+
+                <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Favor preencher email do usuario !' }]}>
+                    <Input placeholder="Email do usuário" />
+                </Form.Item>
+                <Form.Item label="Senha" name="senha" rules={[{ required: true, message: 'Favor preencher a senha' }]}>
+                    <Input.Password />
+                </Form.Item>
+                <Form.Item style={{'marginTop':'30px'}}>
+                    <Button style={{width:'100%'}} type="primary" htmlType="submit" loading={loading} onClick={() => setLoading(true)}>Logar</Button>
+                    <Button style={{ 'marginTop': '10px', width:'100%'}} onClick={entrarNovo} >Cadastrar novo usuário</Button>
+                </Form.Item>
+            </Form>
+        </div>
+    );
+
 }
 
-export default withRouter(SignIn)
+export default withRouter(SignIn);

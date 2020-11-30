@@ -1,6 +1,6 @@
 import Axios from "axios";
 
-const apiUrl =  process.env.APP_URL + `/contato`;
+const apiUrl =  process.env.REACT_APP_URL + `/contato`;
 
 class ContatoService {
 
@@ -28,8 +28,7 @@ class ContatoService {
     } 
     
     static getData(params) {
-        console.log(process.env);
-        let api = process.env.APP_URL  + `/contato/list?page=${params.page}&size=${params.size}`;
+        let api = apiUrl  + `/list?page=${params.page}&size=${params.size}`;
         return Axios.get(api);
     }
 }
