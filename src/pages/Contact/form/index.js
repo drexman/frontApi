@@ -13,7 +13,9 @@ const ContatoForm = (props) => {
             form.setFieldsValue({
 
             });
-            ContatoService
+            ContatoService.findById(id).then(contato => {
+
+            })
         }
     }, [props]);
 
